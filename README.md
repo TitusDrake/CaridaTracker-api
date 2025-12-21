@@ -49,6 +49,12 @@ Run the schema:
 psql -d caridatracker -f database/schema.sql
 ```
 
+**OR** use migrations (recommended):
+
+```bash
+npm run migrate:up
+```
+
 ### 3. Configure Environment
 
 Copy `.env.example` to `.env` and update the values:
@@ -184,7 +190,9 @@ CaridaTracker-api/
 │   ├── app.ts           # Express app setup
 │   └── server.ts        # Server entry point
 ├── database/
-│   └── schema.sql       # Database schema
+│   ├── schema.sql       # Database schema (reference)
+│   └── migrations/      # Database migration files
+├── migrations/          # Database migration files (node-pg-migrate)
 ├── .env.example         # Example environment variables
 ├── tsconfig.json        # TypeScript configuration
 └── package.json         # Dependencies and scripts
@@ -228,6 +236,87 @@ Or for validation errors:
 ## Rate Limiting
 
 - 100 requests per 15 minutes per IP address on `/api/*` routes
+
+## Database Migrations
+
+This project uses `node-pg-migrate` for database schema management. Migrations are tracked automatically, ensuring only new migrations are applied.
+
+### Create a New Migration
+
+```bash
+npm run migrate:create <migration-name>
+```
+
+Example:
+```bash
+npm run migrate:create add-user-profile-fields
+```
+
+This creates a new migration file in the `migrations/` directory with the current timestamp.
+
+### Apply Migrations
+
+Apply all pending migrations:
+
+```bash
+npm run migrate:up
+```
+
+Apply a specific number of migrations:
+
+```bash
+npm run migrate:up 1
+```
+
+### Rollback Migrations
+
+Rollback the last migration:
+
+```bash
+npm run migrate:down
+```
+
+Rollback multiple migrations:
+
+```bash
+npm run migrate:down 2
+```
+
+### Migration File Structure
+
+Migration files use CommonJS exports with `up` and `down` functions:
+
+```javascript
+exports.up = (pgm) => {
+  // Apply changes (create tables, add columns, etc.)
+  pgm.createTable('my_table', {
+    id: 'id',
+    name: { type: 'varchar(100)', notNull: true },
+    created_at: {
+      type: 'timestamp',
+      notNull: true,
+      default: pgm.func('CURRENT_TIMESTAMP')
+    }
+  });
+};
+
+exports.down = (pgm) => {
+  // Revert changes
+  pgm.dropTable('my_table');
+};
+```
+
+### Migration Best Practices
+
+- Always write both `up` and `down` functions
+- Test migrations in development before applying to production
+- Keep migrations small and focused on a single change
+- Never modify existing migrations that have been applied to production
+- Use descriptive names for migrations
+
+### Migration Tracking
+
+Applied migrations are tracked in the `pgmigrations` table. Don't modify this table manually.
 
 ## Development
 
