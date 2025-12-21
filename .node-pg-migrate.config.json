@@ -1,0 +1,8 @@
+{
+  "database-url": "postgres://postgres:password@localhost:5432/caridatracker",
+  "migrations-dir": "database/migrations",
+  "migration-file-language": "sql",
+  "dir": "database/migrations",
+  "schema": "public",
+  "decamelize": true
+}
