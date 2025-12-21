@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Migration files (they have a specific format)
+migrations/
+
+# Config files
+*.config.js
+
+# Environment files
+.env
+.env.*
+
+
+

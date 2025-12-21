@@ -326,6 +326,38 @@ Run in development mode with auto-reload:
 npm run dev
 ```
 
+## Code Quality & Linting
+
+This project uses ESLint for code quality and consistency. ESLint is configured for TypeScript with recommended rules for Node.js/Express development.
+
+### Running ESLint
+
+Check for linting errors:
+
+```bash
+npm run lint
+```
+
+Auto-fix linting errors where possible:
+
+```bash
+npm run lint:fix
+```
+
+### ESLint Configuration
+
+- Configuration file: `eslint.config.mjs`
+- Ignored files: `dist/`, `node_modules/`, `migrations/`, config files
+- Rules enforce:
+  - TypeScript best practices
+  - Code quality standards
+  - Consistent code style (semicolons, quotes, indentation)
+  - Best practices (strict equality, error handling, etc.)
+
+### Pre-commit Linting
+
+It's recommended to run `npm run lint` before committing code. Consider setting up a pre-commit hook (e.g., with husky) to automatically run linting.
+
 ## Production Deployment
 
 1. Set `NODE_ENV=production` in `.env`

@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.routes';
+import organizationRoutes from './routes/organization.routes';
+import clubRoutes from './routes/club.routes';
 
 const app: Application = express();
 
@@ -30,6 +32,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/organizations', organizationRoutes);
+app.use('/api/clubs', clubRoutes);
 
 // Health check
 app.get('/health', (_req: Request, res: Response) => {
