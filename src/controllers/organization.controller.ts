@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { OrganizationModel } from '../models/organization.model';
 
 export class OrganizationController {
-  static async getAll(req: Request, res: Response): Promise<void> {
+  static async getAll(_req: Request, res: Response): Promise<void> {
     try {
       const organizations = await OrganizationModel.findAll();
       res.json(organizations);

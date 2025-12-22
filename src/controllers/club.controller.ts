@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { ClubModel } from '../models/club.model';
 
 export class ClubController {
-  static async getAll(req: Request, res: Response): Promise<void> {
+  static async getAll(_req: Request, res: Response): Promise<void> {
     try {
       const clubs = await ClubModel.findAll();
       res.json(clubs);

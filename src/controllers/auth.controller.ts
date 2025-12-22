@@ -77,7 +77,7 @@ export class AuthController {
           `INSERT INTO club_members (club_id, user_id, role)
            VALUES ($1, $2, $3)
            ON CONFLICT (club_id, user_id) DO NOTHING`,
-          [clubId, user.id, 'member']
+          [clubId, user.id, 'member'],
         );
       } catch (error) {
         console.error('Error creating club membership:', error);
