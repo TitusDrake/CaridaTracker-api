@@ -15,7 +15,7 @@ export class OrganizationController {
   static async getById(req: Request, res: Response): Promise<void> {
     try {
       const id = parseInt(req.params.id, 10);
-      if (isNaN(id)) {
+      if (isNaN(id) || id < 1) {
         res.status(400).json({ error: 'Invalid organization ID' });
         return;
       }

@@ -5,6 +5,8 @@ import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.routes';
 import organizationRoutes from './routes/organization.routes';
 import clubRoutes from './routes/club.routes';
+import troopRoutes from './routes/troop.routes';
+import attendanceRoutes from './routes/attendance.routes';
 
 const app: Application = express();
 
@@ -36,6 +38,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api/clubs', clubRoutes);
+app.use('/api/troops', troopRoutes);
+app.use('/api/troops', attendanceRoutes); // Attendance routes under /api/troops/:id/attend
 
 // Health check
 app.get('/health', (_req: Request, res: Response) => {

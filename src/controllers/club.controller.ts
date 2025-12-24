@@ -15,7 +15,7 @@ export class ClubController {
   static async getByOrganization(req: Request, res: Response): Promise<void> {
     try {
       const organizationId = parseInt(req.params.organizationId, 10);
-      if (isNaN(organizationId)) {
+      if (isNaN(organizationId) || organizationId < 1) {
         res.status(400).json({ error: 'Invalid organization ID' });
         return;
       }
@@ -31,7 +31,7 @@ export class ClubController {
   static async getById(req: Request, res: Response): Promise<void> {
     try {
       const id = parseInt(req.params.id, 10);
-      if (isNaN(id)) {
+      if (isNaN(id) || id < 1) {
         res.status(400).json({ error: 'Invalid club ID' });
         return;
       }

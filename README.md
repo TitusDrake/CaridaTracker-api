@@ -358,6 +358,128 @@ npm run lint:fix
 
 It's recommended to run `npm run lint` before committing code. Consider setting up a pre-commit hook (e.g., with husky) to automatically run linting.
 
+## Testing
+
+This project uses **Jest** and **Supertest** for API endpoint testing. All tests are located in `src/__tests__/`.
+
+### Test Setup
+
+**Important:** Tests require a separate test database or will use the same database as development. Make sure your database is set up and migrations are applied before running tests.
+
+1. **Test Environment Variables** (Optional but recommended):
+   
+   Create a `.env.test` file for test-specific configuration:
+   
+   ```env
+   NODE_ENV=test
+   DB_NAME=caridatracker_test
+   DB_USER=postgres
+   DB_PASSWORD=your_password
+   JWT_SECRET=test_secret_key
+   ```
+   
+   If `.env.test` doesn't exist, tests will use your regular `.env` file.
+
+2. **Test Database Setup:**
+   
+   Ensure your test database exists and migrations are applied:
+   
+   ```bash
+   # Create test database (if using separate DB)
+   createdb caridatracker_test
+   
+   # Apply migrations to test database
+   # (Update DB_NAME in .env.test first)
+   npm run migrate:up
+   ```
+
+### Running Tests
+
+**Run all tests:**
+```bash
+npm test
+```
+
+**Run tests in watch mode** (automatically re-runs on file changes):
+```bash
+npm run test:watch
+```
+
+**Run tests with coverage report:**
+```bash
+npm run test:coverage
+```
+
+**Run a specific test file:**
+```bash
+npm test -- src/__tests__/auth.test.ts
+```
+
+**Run tests matching a pattern:**
+```bash
+npm test -- --testNamePattern="should register"
+```
+
+### Test Files
+
+Current test coverage includes:
+
+- ✅ `health.test.ts` - Health check endpoint
+- ✅ `auth.test.ts` - Authentication endpoints (register, login, me)
+- ✅ `troops.test.ts` - Troops CRUD operations
+- ✅ `attendance.test.ts` - Attendance endpoints (sign up, cancel, list)
+- ✅ `clubs.test.ts` - Club endpoints
+- ✅ `organizations.test.ts` - Organization endpoints
+
+### Test Structure
+
+Tests use helper functions from `src/__tests__/helpers.ts`:
+
+- `testRequest()` - Make unauthenticated API requests
+- `createTestUser(options?)` - Create a test user and return auth token
+- `authRequest(token)` - Make authenticated API requests
+- `cleanupTestData()` - Clean up test data from database
+- `closeDatabase()` - Close database connection
+
+**Example test:**
+```typescript
+import { testRequest, createTestUser, authRequest } from './helpers';
+
+describe('My API', () => {
+  it('should do something', async () => {
+    const user = await createTestUser();
+    const response = await authRequest(user.token)
+      .get('/api/endpoint');
+    
+    expect(response.status).toBe(200);
+  });
+});
+```
+
+### Test Configuration
+
+- **Test Framework:** Jest with ts-jest preset
+- **Test Environment:** Node.js
+- **Test Location:** `src/__tests__/**/*.test.ts`
+- **Setup File:** `src/__tests__/setup.ts` (loads test environment, sets timeout)
+- **Coverage:** Excludes type definitions and server entry point
+
+### Important Notes
+
+1. **Database Cleanup:** Tests automatically clean up test data (users with `@test.com` emails, test troops, etc.) but be aware that tests may create temporary data.
+
+2. **Test Isolation:** Each test file should clean up after itself using `cleanupTestData()` in `afterAll` hooks.
+
+3. **Authentication:** Use `createTestUser()` helper to create authenticated test users. The helper returns a token that can be used with `authRequest()`.
+
+4. **Test Timeout:** Default timeout is 10 seconds (configured in `setup.ts`). Increase if needed for slow database operations.
+
+5. **Running in WSL:** If developing on Windows with WSL, run tests from within WSL to ensure proper database connectivity:
+   ```bash
+   cd /mnt/c/Users/riche/Development/CaridaTracker-api
+   npm test
+   ```
+
 ## Production Deployment
 
 1. Set `NODE_ENV=production` in `.env`
