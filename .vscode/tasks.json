@@ -1,0 +1,103 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Lint (Backend API)",
+      "type": "shell",
+      "command": "wsl",
+      "args": [
+        "-e",
+        "bash",
+        "-c",
+        "cd /mnt/c/Users/riche/Development/CaridaTracker-api && npm run lint"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "lint"
+      }
+    },
+    {
+      "label": "Start Backend (API)",
+      "type": "shell",
+      "command": "wsl",
+      "args": [
+        "-e",
+        "bash",
+        "-c",
+        "cd /mnt/c/Users/riche/Development/CaridaTracker-api && npm run dev"
+      ],
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "dev"
+      }
+    },
+    {
+      "label": "Run Tests (Backend API)",
+      "type": "shell",
+      "command": "wsl",
+      "args": [
+        "-e",
+        "bash",
+        "-c",
+        "cd /mnt/c/Users/riche/Development/CaridaTracker-api && npm test"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "test"
+      }
+    },
+    {
+      "label": "Run Tests: Watch (Backend API)",
+      "type": "shell",
+      "command": "wsl",
+      "args": [
+        "-e",
+        "bash",
+        "-c",
+        "cd /mnt/c/Users/riche/Development/CaridaTracker-api && npm run test:watch"
+      ],
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "test"
+      }
+    },
+    {
+      "label": "Run Tests: Coverage (Backend API)",
+      "type": "shell",
+      "command": "wsl",
+      "args": [
+        "-e",
+        "bash",
+        "-c",
+        "cd /mnt/c/Users/riche/Development/CaridaTracker-api && npm run test:coverage"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "test"
+      }
+    },
+    {
+      "label": "Lint → Test → Start (Backend API)",
+      "dependsOn": [
+        "Run Lint (Backend API)",
+        "Run Tests (Backend API)",
+        "Start Backend (API)"
+      ],
+      "dependsOrder": "sequence",
+      "problemMatcher": []
+    }
+  ]
+}
+

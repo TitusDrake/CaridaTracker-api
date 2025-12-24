@@ -1,0 +1,48 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Backend (API)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": [
+        "-e",
+        "bash",
+        "-c",
+        "cd /mnt/c/Users/riche/Development/CaridaTracker-api && npm run dev"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Run Tests (Backend API)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": [
+        "-e",
+        "bash",
+        "-c",
+        "cd /mnt/c/Users/riche/Development/CaridaTracker-api && npm test"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Run Tests: Watch (Backend API)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "wsl",
+      "runtimeArgs": [
+        "-e",
+        "bash",
+        "-c",
+        "cd /mnt/c/Users/riche/Development/CaridaTracker-api && npm run test:watch"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ]
+}
+
