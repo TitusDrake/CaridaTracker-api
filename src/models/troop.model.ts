@@ -293,4 +293,34 @@ export class TroopModel {
 
     return result.rows.length > 0;
   }
+
+  /**
+   * Search troops by event name, venue, or city
+   */
+  static async search(userId: number, searchQuery: string, limit: number = 20): Promise<TroopWithDetails[]> {
+    const searchPattern = `%${searchQuery}%`;
+
+    const result = await query(
+      `SELECT DISTINCT
+        t.*,
+        u.username as creator_username,
+        c.name as creator_club_name,
+        (SELECT COUNT(*) FROM troop_attendees ta WHERE ta.troop_id = t.id) as attendee_count,
+        EXISTS(SELECT 1 FROM troop_attendees ta WHERE ta.troop_id = t.id AND ta.user_id = $1) as is_attending
+       FROM troops t
+       LEFT JOIN users u ON t.created_by = u.id
+       LEFT JOIN clubs c ON t.created_by_club_id = c.id
+       INNER JOIN troop_clubs tc ON t.id = tc.troop_id AND tc.enabled = true
+       INNER JOIN club_members cm ON tc.club_id = cm.club_id AND cm.user_id = $1
+       WHERE t.event_name ILIKE $2
+          OR t.venue_name ILIKE $2
+          OR t.city ILIKE $2
+          OR t.description ILIKE $2
+       ORDER BY t.event_date DESC
+       LIMIT $3`,
+      [userId, searchPattern, limit]
+    );
+
+    return result.rows;
+  }
 }

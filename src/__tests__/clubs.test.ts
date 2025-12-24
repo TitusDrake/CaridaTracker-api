@@ -1,4 +1,4 @@
-import { testRequest, cleanupTestData, closeDatabase } from './helpers';
+import { testRequest, createTestUser, authRequest, cleanupTestData, closeDatabase } from './helpers';
 
 describe('Clubs API', () => {
   afterAll(async () => {
@@ -153,7 +153,7 @@ describe('Clubs API', () => {
         .get('/api/clubs');
 
       expect(response.status).toBe(200);
-      
+
       if (response.body.length > 0) {
         const club = response.body[0];
         expect(club).toHaveProperty('id');
@@ -163,12 +163,79 @@ describe('Clubs API', () => {
         expect(club).toHaveProperty('location');
         expect(club).toHaveProperty('created_at');
         expect(club).toHaveProperty('updated_at');
-        
+
         // Type checks
         expect(typeof club.id).toBe('number');
         expect(typeof club.name).toBe('string');
         expect(typeof club.organization_id).toBe('number');
       }
+    });
+  });
+
+  describe('GET /api/clubs/:id/members', () => {
+    let memberToken: string;
+    const clubId = 1; // Garrison Carida from seed data
+
+    beforeAll(async () => {
+      const member = await createTestUser({
+        email: `clubmember_${Date.now()}@test.com`,
+        username: `clubmember_${Date.now()}`,
+        isAdmin: false,
+        clubId,
+      });
+      memberToken = member.token;
+    });
+
+    it('should require authentication', async () => {
+      const response = await testRequest()
+        .get(`/api/clubs/${clubId}/members`);
+
+      expect(response.status).toBe(401);
+    });
+
+    it('should return members for a club the user belongs to', async () => {
+      const response = await authRequest(memberToken)
+        .get(`/api/clubs/${clubId}/members`);
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
+
+      const member = response.body[0];
+      expect(member).toHaveProperty('membership_id');
+      expect(member).toHaveProperty('role');
+      expect(member).toHaveProperty('user_id');
+      expect(member).toHaveProperty('username');
+    });
+
+    it('should return 403 for non-member club', async () => {
+      // Create a user in a different club (Kyber Base is org 2, club 2)
+      const otherUser = await createTestUser({
+        email: `otherclub_${Date.now()}@test.com`,
+        username: `otherclub_${Date.now()}`,
+        isAdmin: false,
+        organizationId: 2,
+        clubId: 2, // Kyber Base - different club
+      });
+
+      const response = await authRequest(otherUser.token)
+        .get(`/api/clubs/${clubId}/members`);
+
+      expect(response.status).toBe(403);
+    });
+
+    it('should return 404 for non-existent club', async () => {
+      const response = await authRequest(memberToken)
+        .get('/api/clubs/99999/members');
+
+      expect(response.status).toBe(404);
+    });
+
+    it('should return 400 for invalid club ID', async () => {
+      const response = await authRequest(memberToken)
+        .get('/api/clubs/invalid/members');
+
+      expect(response.status).toBe(400);
     });
   });
 });

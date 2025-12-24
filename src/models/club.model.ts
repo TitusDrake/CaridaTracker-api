@@ -68,6 +68,67 @@ export class ClubModel {
       organization: row.organization,
     };
   }
+
+  /**
+   * Get all members of a club with user details
+   */
+  static async getMembers(clubId: number): Promise<any[]> {
+    const result = await query(
+      `SELECT
+        cm.id as membership_id,
+        cm.role,
+        cm.joined_at,
+        u.id as user_id,
+        u.username,
+        u.first_name,
+        u.last_name,
+        u.email,
+        u.tkid
+       FROM club_members cm
+       INNER JOIN users u ON cm.user_id = u.id
+       WHERE cm.club_id = $1
+       ORDER BY
+         CASE cm.role
+           WHEN 'super_admin' THEN 1
+           WHEN 'admin' THEN 2
+           WHEN 'member' THEN 3
+           WHEN 'cadet' THEN 4
+           ELSE 5
+         END,
+         u.username`,
+      [clubId]
+    );
+
+    return result.rows;
+  }
+
+  /**
+   * Check if user is an admin of the club
+   */
+  static async isUserAdmin(clubId: number, userId: number): Promise<boolean> {
+    const result = await query(
+      `SELECT 1 FROM club_members
+       WHERE club_id = $1 AND user_id = $2 AND role IN ('admin', 'super_admin')
+       LIMIT 1`,
+      [clubId, userId]
+    );
+
+    return result.rows.length > 0;
+  }
+
+  /**
+   * Check if user is a member of the club
+   */
+  static async isUserMember(clubId: number, userId: number): Promise<boolean> {
+    const result = await query(
+      `SELECT 1 FROM club_members
+       WHERE club_id = $1 AND user_id = $2
+       LIMIT 1`,
+      [clubId, userId]
+    );
+
+    return result.rows.length > 0;
+  }
 }
 
 
