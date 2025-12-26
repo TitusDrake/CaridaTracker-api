@@ -19,8 +19,8 @@ export class UserModel {
         userData.firstName || null,
         userData.lastName || null,
         userData.phoneNumber || null,
-        userData.tkid || null
-      ]
+        userData.tkid || null,
+      ],
     );
 
     return result.rows[0];
@@ -29,7 +29,7 @@ export class UserModel {
   static async findByEmail(email: string): Promise<User | null> {
     const result = await query(
       'SELECT * FROM users WHERE email = $1',
-      [email]
+      [email],
     );
 
     return result.rows[0] || null;
@@ -38,7 +38,7 @@ export class UserModel {
   static async findByUsername(username: string): Promise<User | null> {
     const result = await query(
       'SELECT * FROM users WHERE username = $1',
-      [username]
+      [username],
     );
 
     return result.rows[0] || null;
@@ -48,7 +48,7 @@ export class UserModel {
     // Try email first, then username
     const result = await query(
       'SELECT * FROM users WHERE email = $1 OR username = $1',
-      [identifier]
+      [identifier],
     );
 
     return result.rows[0] || null;
@@ -57,7 +57,7 @@ export class UserModel {
   static async findById(id: number): Promise<User | null> {
     const result = await query(
       'SELECT id, email, username, first_name, last_name, phone_number, tkid, created_at, updated_at FROM users WHERE id = $1',
-      [id]
+      [id],
     );
 
     return result.rows[0] || null;
@@ -70,7 +70,7 @@ export class UserModel {
   static async emailExists(email: string): Promise<boolean> {
     const result = await query(
       'SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)',
-      [email]
+      [email],
     );
 
     return result.rows[0].exists;
@@ -79,7 +79,7 @@ export class UserModel {
   static async usernameExists(username: string): Promise<boolean> {
     const result = await query(
       'SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)',
-      [username]
+      [username],
     );
 
     return result.rows[0].exists;
@@ -105,7 +105,7 @@ export class UserModel {
        INNER JOIN organizations o ON c.organization_id = o.id
        WHERE cm.user_id = $1
        ORDER BY o.name, c.name`,
-      [userId]
+      [userId],
     );
 
     return result.rows;
@@ -125,7 +125,7 @@ export class UserModel {
        FROM troop_attendees ta
        INNER JOIN troops t ON ta.troop_id = t.id
        WHERE ta.user_id = $1`,
-      [userId]
+      [userId],
     );
 
     return result.rows[0];
@@ -145,7 +145,7 @@ export class UserModel {
        FROM troop_attendees ta
        INNER JOIN troops t ON ta.troop_id = t.id
        WHERE ta.user_id = $1 AND ta.club_id = $2`,
-      [userId, clubId]
+      [userId, clubId],
     );
 
     // Also get club info
@@ -154,7 +154,7 @@ export class UserModel {
        FROM clubs c
        INNER JOIN organizations o ON c.organization_id = o.id
        WHERE c.id = $1`,
-      [clubId]
+      [clubId],
     );
 
     return {
@@ -187,7 +187,7 @@ export class UserModel {
        GROUP BY u.id, u.username, u.first_name, u.last_name, u.tkid
        ORDER BY u.username
        LIMIT $2`,
-      [searchPattern, limit]
+      [searchPattern, limit],
     );
 
     return result.rows;

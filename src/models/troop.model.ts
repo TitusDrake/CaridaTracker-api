@@ -19,7 +19,7 @@ export class TroopModel {
       INNER JOIN troop_clubs tc ON t.id = tc.troop_id AND tc.enabled = true
       INNER JOIN club_members cm ON tc.club_id = cm.club_id AND cm.user_id = $1
       ORDER BY t.event_date DESC, t.start_time DESC`,
-      [userId]
+      [userId],
     );
 
     return result.rows;
@@ -39,7 +39,7 @@ export class TroopModel {
       LEFT JOIN users u ON t.created_by = u.id
       LEFT JOIN clubs c ON t.created_by_club_id = c.id
       ORDER BY t.event_date DESC, t.start_time DESC`,
-      []
+      [],
     );
 
     return result.rows;
@@ -51,7 +51,7 @@ export class TroopModel {
   static async findById(id: number): Promise<Troop | null> {
     const result = await query(
       'SELECT * FROM troops WHERE id = $1',
-      [id]
+      [id],
     );
 
     return result.rows[0] || null;
@@ -67,12 +67,12 @@ export class TroopModel {
         u.username as creator_username,
         c.name as creator_club_name,
         (SELECT COUNT(*) FROM troop_attendees ta WHERE ta.troop_id = t.id) as attendee_count,
-        ${userId ? `EXISTS(SELECT 1 FROM troop_attendees ta WHERE ta.troop_id = t.id AND ta.user_id = $2) as is_attending` : 'false as is_attending'}
+        ${userId ? 'EXISTS(SELECT 1 FROM troop_attendees ta WHERE ta.troop_id = t.id AND ta.user_id = $2) as is_attending' : 'false as is_attending'}
       FROM troops t
       LEFT JOIN users u ON t.created_by = u.id
       LEFT JOIN clubs c ON t.created_by_club_id = c.id
       WHERE t.id = $1`,
-      userId ? [id, userId] : [id]
+      userId ? [id, userId] : [id],
     );
 
     if (!result.rows[0]) {
@@ -84,7 +84,7 @@ export class TroopModel {
       `SELECT c.* FROM clubs c
        INNER JOIN troop_clubs tc ON c.id = tc.club_id
        WHERE tc.troop_id = $1 AND tc.enabled = true`,
-      [id]
+      [id],
     );
 
     return {
@@ -102,7 +102,7 @@ export class TroopModel {
        INNER JOIN club_members cm ON tc.club_id = cm.club_id
        WHERE tc.troop_id = $1 AND cm.user_id = $2 AND tc.enabled = true
        LIMIT 1`,
-      [troopId, userId]
+      [troopId, userId],
     );
 
     return result.rows.length > 0;
@@ -113,8 +113,8 @@ export class TroopModel {
    */
   static async isUserAdmin(userId: number, clubId?: number): Promise<boolean> {
     const sql = clubId
-      ? `SELECT 1 FROM club_members WHERE user_id = $1 AND club_id = $2 AND role IN ('admin', 'super_admin') LIMIT 1`
-      : `SELECT 1 FROM club_members WHERE user_id = $1 AND role IN ('admin', 'super_admin') LIMIT 1`;
+      ? 'SELECT 1 FROM club_members WHERE user_id = $1 AND club_id = $2 AND role IN (\'admin\', \'super_admin\') LIMIT 1'
+      : 'SELECT 1 FROM club_members WHERE user_id = $1 AND role IN (\'admin\', \'super_admin\') LIMIT 1';
 
     const result = await query(sql, clubId ? [userId, clubId] : [userId]);
     return result.rows.length > 0;
@@ -125,8 +125,8 @@ export class TroopModel {
    */
   static async getUserAdminClubs(userId: number): Promise<number[]> {
     const result = await query(
-      `SELECT club_id FROM club_members WHERE user_id = $1 AND role IN ('admin', 'super_admin')`,
-      [userId]
+      'SELECT club_id FROM club_members WHERE user_id = $1 AND role IN (\'admin\', \'super_admin\')',
+      [userId],
     );
     return result.rows.map(row => row.club_id);
   }
@@ -137,7 +137,7 @@ export class TroopModel {
   static async create(
     data: TroopCreateInput,
     createdBy: number,
-    createdByClubId: number
+    createdByClubId: number,
   ): Promise<Troop> {
     const result = await query(
       `INSERT INTO troops (
@@ -170,7 +170,7 @@ export class TroopModel {
         data.policies_link || null,
         createdBy,
         createdByClubId,
-      ]
+      ],
     );
 
     const troop = result.rows[0];
@@ -180,14 +180,14 @@ export class TroopModel {
       for (const clubId of data.club_ids) {
         await query(
           'INSERT INTO troop_clubs (troop_id, club_id, enabled) VALUES ($1, $2, true) ON CONFLICT DO NOTHING',
-          [troop.id, clubId]
+          [troop.id, clubId],
         );
       }
     } else {
       // Default: make visible to the creator's club
       await query(
         'INSERT INTO troop_clubs (troop_id, club_id, enabled) VALUES ($1, $2, true)',
-        [troop.id, createdByClubId]
+        [troop.id, createdByClubId],
       );
     }
 
@@ -243,7 +243,7 @@ export class TroopModel {
       values.push(id);
       const result = await query(
         `UPDATE troops SET ${updates.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
-        values
+        values,
       );
       troop = result.rows[0] || null;
     } else {
@@ -259,7 +259,7 @@ export class TroopModel {
       for (const clubId of data.club_ids) {
         await query(
           'INSERT INTO troop_clubs (troop_id, club_id, enabled) VALUES ($1, $2, true)',
-          [id, clubId]
+          [id, clubId],
         );
       }
     }
@@ -273,7 +273,7 @@ export class TroopModel {
   static async delete(id: number): Promise<boolean> {
     const result = await query(
       'DELETE FROM troops WHERE id = $1 RETURNING id',
-      [id]
+      [id],
     );
 
     return result.rows.length > 0;
@@ -288,7 +288,7 @@ export class TroopModel {
        INNER JOIN club_members cm ON t.created_by_club_id = cm.club_id
        WHERE t.id = $1 AND cm.user_id = $2 AND cm.role IN ('admin', 'super_admin')
        LIMIT 1`,
-      [troopId, userId]
+      [troopId, userId],
     );
 
     return result.rows.length > 0;
@@ -318,7 +318,7 @@ export class TroopModel {
           OR t.description ILIKE $2
        ORDER BY t.event_date DESC
        LIMIT $3`,
-      [userId, searchPattern, limit]
+      [userId, searchPattern, limit],
     );
 
     return result.rows;

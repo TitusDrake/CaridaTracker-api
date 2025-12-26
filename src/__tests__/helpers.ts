@@ -6,13 +6,52 @@ import pool from '../config/database';
 export const testRequest = () => request(app);
 
 // Helper to clean up test data
+// Only deletes test users and their related data, preserves seeded troops
 export const cleanupTestData = async () => {
-  // Clean up in reverse order of dependencies
-  await pool.query('DELETE FROM troop_attendees WHERE id > 0');
-  await pool.query('DELETE FROM troop_clubs WHERE id > 0');
-  await pool.query('DELETE FROM troops WHERE id > 0');
-  await pool.query('DELETE FROM club_members WHERE id > 0');
-  await pool.query('DELETE FROM users WHERE email LIKE $1', ['%@test.com']);
+  // Get test user IDs (users with @test.com emails)
+  const testUsers = await pool.query(
+    'SELECT id FROM users WHERE email LIKE $1',
+    ['%@test.com'],
+  );
+  const testUserIds = testUsers.rows.map(row => row.id);
+
+  if (testUserIds.length > 0) {
+    // Delete attendance records for test users only
+    await pool.query(
+      'DELETE FROM troop_attendees WHERE user_id = ANY($1)',
+      [testUserIds],
+    );
+
+    // Delete club memberships for test users only
+    await pool.query(
+      'DELETE FROM club_members WHERE user_id = ANY($1)',
+      [testUserIds],
+    );
+
+    // Delete troops created by test users only
+    const testTroops = await pool.query(
+      'SELECT id FROM troops WHERE created_by = ANY($1)',
+      [testUserIds],
+    );
+    const testTroopIds = testTroops.rows.map(row => row.id);
+
+    if (testTroopIds.length > 0) {
+      await pool.query(
+        'DELETE FROM troop_clubs WHERE troop_id = ANY($1)',
+        [testTroopIds],
+      );
+      await pool.query(
+        'DELETE FROM troops WHERE id = ANY($1)',
+        [testTroopIds],
+      );
+    }
+
+    // Delete test users
+    await pool.query(
+      'DELETE FROM users WHERE id = ANY($1)',
+      [testUserIds],
+    );
+  }
 };
 
 // Type for createTestUser options
@@ -76,15 +115,15 @@ export const createTestUser = async (userData?: CreateTestUserOptions): Promise<
   // If isAdmin is true, update the user's role to admin
   if (isAdmin && userId && clubId) {
     await pool.query(
-      `UPDATE club_members SET role = 'admin' WHERE user_id = $1 AND club_id = $2`,
-      [userId, clubId]
+      'UPDATE club_members SET role = \'admin\' WHERE user_id = $1 AND club_id = $2',
+      [userId, clubId],
     );
   }
 
   return {
     user: response.body.user,
     token: response.body.token,
-    userId: userId,
+    userId,
     credentials: defaultData,
   };
 };

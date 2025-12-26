@@ -14,7 +14,7 @@ describe('Clubs API', () => {
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
       expect(response.body.length).toBeGreaterThan(0);
-      
+
       // Check structure of first club
       if (response.body.length > 0) {
         const club = response.body[0];
@@ -31,7 +31,7 @@ describe('Clubs API', () => {
         .get('/api/clubs');
 
       expect(response.status).toBe(200);
-      
+
       // Check if clubs have organization data (if ClubWithOrganization type is used)
       if (response.body.length > 0) {
         const club = response.body[0];
@@ -49,7 +49,7 @@ describe('Clubs API', () => {
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
-      
+
       // All returned clubs should belong to organization 1
       response.body.forEach((club: any) => {
         expect(club.organization_id).toBe(1);
@@ -96,7 +96,7 @@ describe('Clubs API', () => {
       // Get a club ID from the list
       const clubsResponse = await testRequest()
         .get('/api/clubs');
-      
+
       if (clubsResponse.body.length > 0) {
         testClubId = clubsResponse.body[0].id;
       } else {
@@ -239,4 +239,5 @@ describe('Clubs API', () => {
     });
   });
 });
+
 

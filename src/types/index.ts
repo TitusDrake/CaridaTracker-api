@@ -119,7 +119,7 @@ export interface TroopCreateInput {
   club_ids?: number[]; // Clubs that can see this troop
 }
 
-export interface TroopUpdateInput extends Partial<TroopCreateInput> {}
+export type TroopUpdateInput = Partial<TroopCreateInput>;
 
 export interface TroopWithDetails extends Troop {
   creator_username?: string | null;

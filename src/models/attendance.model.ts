@@ -27,7 +27,7 @@ export class AttendanceModel {
       `INSERT INTO troop_attendees (troop_id, user_id, club_id, status, notes)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [troop_id, user_id, club_id, status, notes || null]
+      [troop_id, user_id, club_id, status, notes || null],
     );
 
     return result.rows[0];
@@ -41,7 +41,7 @@ export class AttendanceModel {
       `DELETE FROM troop_attendees
        WHERE troop_id = $1 AND user_id = $2 AND club_id = $3
        RETURNING id`,
-      [troopId, userId, clubId]
+      [troopId, userId, clubId],
     );
 
     return result.rowCount !== null && result.rowCount > 0;
@@ -55,7 +55,7 @@ export class AttendanceModel {
       `SELECT 1 FROM troop_attendees
        WHERE troop_id = $1 AND user_id = $2 AND club_id = $3
        LIMIT 1`,
-      [troopId, userId, clubId]
+      [troopId, userId, clubId],
     );
 
     return result.rows.length > 0;
@@ -77,7 +77,7 @@ export class AttendanceModel {
        INNER JOIN clubs c ON ta.club_id = c.id
        WHERE ta.troop_id = $1
        ORDER BY ta.signed_up_at ASC`,
-      [troopId]
+      [troopId],
     );
 
     return result.rows;
@@ -90,7 +90,7 @@ export class AttendanceModel {
     const result = await query(
       `SELECT * FROM troop_attendees
        WHERE troop_id = $1 AND user_id = $2`,
-      [troopId, userId]
+      [troopId, userId],
     );
 
     return result.rows;
@@ -104,7 +104,7 @@ export class AttendanceModel {
       `SELECT 1 FROM club_members
        WHERE user_id = $1 AND club_id = $2
        LIMIT 1`,
-      [userId, clubId]
+      [userId, clubId],
     );
 
     return result.rows.length > 0;
@@ -118,7 +118,7 @@ export class AttendanceModel {
       `SELECT 1 FROM troop_clubs
        WHERE troop_id = $1 AND club_id = $2 AND enabled = true
        LIMIT 1`,
-      [troopId, clubId]
+      [troopId, clubId],
     );
 
     return result.rows.length > 0;
@@ -129,8 +129,8 @@ export class AttendanceModel {
    */
   static async getAttendeeCount(troopId: number): Promise<number> {
     const result = await query(
-      `SELECT COUNT(*) as count FROM troop_attendees WHERE troop_id = $1`,
-      [troopId]
+      'SELECT COUNT(*) as count FROM troop_attendees WHERE troop_id = $1',
+      [troopId],
     );
 
     return parseInt(result.rows[0].count, 10);

@@ -1,30 +1,25 @@
 import { testRequest, createTestUser, authRequest, cleanupTestData, closeDatabase } from './helpers';
-import { query } from '../config/database';
 
 describe('Troops API', () => {
-  let adminUser: { user: any; token: string; credentials: any };
-  let memberUser: { user: any; token: string; credentials: any };
+  let adminUser: { user: { id: number; username: string }; token: string; credentials: { clubId: number } };
+  let memberUser: { user: { id: number; username: string }; token: string; credentials: { clubId: number } };
   let adminClubId: number;
 
   beforeAll(async () => {
-    // Make sure we have the test user as an admin
-    // First, create a regular user
+    // Create an admin user for club 1
     adminUser = await createTestUser({
       email: `admin${Date.now()}@test.com`,
       username: `adminuser${Date.now()}`,
+      clubId: 1,
+      isAdmin: true,
     });
+    adminClubId = adminUser.credentials.clubId;
 
-    // Make them an admin for club 1
-    adminClubId = 1;
-    await query(
-      `UPDATE club_members SET role = 'admin' WHERE user_id = $1 AND club_id = $2`,
-      [adminUser.user.id, adminClubId]
-    );
-
-    // Create a regular member
+    // Create a regular member for club 1
     memberUser = await createTestUser({
       email: `member${Date.now()}@test.com`,
       username: `memberuser${Date.now()}`,
+      clubId: 1,
     });
   });
 

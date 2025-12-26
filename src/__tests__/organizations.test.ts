@@ -14,7 +14,7 @@ describe('Organizations API', () => {
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
       expect(response.body.length).toBeGreaterThan(0);
-      
+
       // Check structure of first organization
       if (response.body.length > 0) {
         const org = response.body[0];
@@ -29,7 +29,7 @@ describe('Organizations API', () => {
         .get('/api/organizations');
 
       expect(response.status).toBe(200);
-      
+
       if (response.body.length > 0) {
         const org = response.body[0];
         expect(org).toHaveProperty('id');
@@ -37,7 +37,7 @@ describe('Organizations API', () => {
         expect(org).toHaveProperty('description');
         expect(org).toHaveProperty('created_at');
         expect(org).toHaveProperty('updated_at');
-        
+
         // Type checks
         expect(typeof org.id).toBe('number');
         expect(typeof org.name).toBe('string');
@@ -49,9 +49,9 @@ describe('Organizations API', () => {
         .get('/api/organizations');
 
       expect(response.status).toBe(200);
-      
+
       const orgNames = response.body.map((org: any) => org.name);
-      
+
       // Check for expected seed data organizations
       // These should exist from the seed migration
       const expectedOrgs = [
@@ -61,7 +61,7 @@ describe('Organizations API', () => {
         'Droid Builders',
         'Jedi Sith Alliance',
       ];
-      
+
       // At least some of these should be present
       const foundOrgs = expectedOrgs.filter(name => orgNames.includes(name));
       expect(foundOrgs.length).toBeGreaterThan(0);
@@ -75,7 +75,7 @@ describe('Organizations API', () => {
       // Get an organization ID from the list
       const orgsResponse = await testRequest()
         .get('/api/organizations');
-      
+
       if (orgsResponse.body.length > 0) {
         testOrgId = orgsResponse.body[0].id;
       } else {
@@ -132,7 +132,7 @@ describe('Organizations API', () => {
         .get('/api/organizations');
 
       expect(response.status).toBe(200);
-      
+
       if (response.body.length > 0) {
         // Check that all organizations have the same structure
         response.body.forEach((org: any) => {
@@ -141,7 +141,7 @@ describe('Organizations API', () => {
           expect(org).toHaveProperty('description');
           expect(org).toHaveProperty('created_at');
           expect(org).toHaveProperty('updated_at');
-          
+
           // Ensure required fields are not null
           expect(org.id).not.toBeNull();
           expect(org.name).not.toBeNull();
@@ -150,4 +150,5 @@ describe('Organizations API', () => {
     });
   });
 });
+
 

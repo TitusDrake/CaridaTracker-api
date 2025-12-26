@@ -5,7 +5,7 @@ export class ClubModel {
   static async findAll(): Promise<Club[]> {
     const result = await query(
       'SELECT id, organization_id, name, description, location, created_at, updated_at FROM clubs ORDER BY name ASC',
-      []
+      [],
     );
 
     return result.rows;
@@ -14,7 +14,7 @@ export class ClubModel {
   static async findByOrganizationId(organizationId: number): Promise<Club[]> {
     const result = await query(
       'SELECT id, organization_id, name, description, location, created_at, updated_at FROM clubs WHERE organization_id = $1 ORDER BY name ASC',
-      [organizationId]
+      [organizationId],
     );
 
     return result.rows;
@@ -23,7 +23,7 @@ export class ClubModel {
   static async findById(id: number): Promise<Club | null> {
     const result = await query(
       'SELECT id, organization_id, name, description, location, created_at, updated_at FROM clubs WHERE id = $1',
-      [id]
+      [id],
     );
 
     return result.rows[0] || null;
@@ -49,7 +49,7 @@ export class ClubModel {
       FROM clubs c
       LEFT JOIN organizations o ON c.organization_id = o.id
       WHERE c.id = $1`,
-      [id]
+      [id],
     );
 
     if (!result.rows[0]) {
@@ -96,7 +96,7 @@ export class ClubModel {
            ELSE 5
          END,
          u.username`,
-      [clubId]
+      [clubId],
     );
 
     return result.rows;
@@ -110,7 +110,7 @@ export class ClubModel {
       `SELECT 1 FROM club_members
        WHERE club_id = $1 AND user_id = $2 AND role IN ('admin', 'super_admin')
        LIMIT 1`,
-      [clubId, userId]
+      [clubId, userId],
     );
 
     return result.rows.length > 0;
@@ -124,7 +124,7 @@ export class ClubModel {
       `SELECT 1 FROM club_members
        WHERE club_id = $1 AND user_id = $2
        LIMIT 1`,
-      [clubId, userId]
+      [clubId, userId],
     );
 
     return result.rows.length > 0;
