@@ -9,6 +9,8 @@ import troopRoutes from './routes/troop.routes';
 import attendanceRoutes from './routes/attendance.routes';
 import userRoutes from './routes/user.routes';
 import searchRoutes from './routes/search.routes';
+import costumeRoutes from './routes/costume.routes';
+import shiftRoutes from './routes/shift.routes';
 
 const app: Application = express();
 
@@ -42,8 +44,10 @@ app.use('/api/organizations', organizationRoutes);
 app.use('/api/clubs', clubRoutes);
 app.use('/api/troops', troopRoutes);
 app.use('/api/troops', attendanceRoutes); // Attendance routes under /api/troops/:id/attend
+app.use('/api/troops', shiftRoutes); // Shift routes under /api/troops/:id/shifts
 app.use('/api/users', userRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/costumes', costumeRoutes);
 
 // Health check
 app.get('/health', (_req: Request, res: Response) => {

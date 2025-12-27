@@ -295,6 +295,28 @@ export class TroopModel {
   }
 
   /**
+   * Check if user is an admin for a specific troop
+   * (either created the troop or is admin of one of the visible clubs)
+   */
+  static async isTroopAdmin(troopId: number, userId: number): Promise<boolean> {
+    const result = await query(
+      `SELECT 1 FROM troops t
+       WHERE t.id = $1 AND (
+         t.created_by = $2 OR
+         EXISTS (
+           SELECT 1 FROM troop_clubs tc
+           INNER JOIN club_members cm ON tc.club_id = cm.club_id
+           WHERE tc.troop_id = t.id AND cm.user_id = $2 AND cm.role IN ('admin', 'super_admin')
+         )
+       )
+       LIMIT 1`,
+      [troopId, userId],
+    );
+
+    return result.rows.length > 0;
+  }
+
+  /**
    * Search troops by event name, venue, or city
    */
   static async search(userId: number, searchQuery: string, limit: number = 20): Promise<TroopWithDetails[]> {

@@ -115,10 +115,12 @@ describe('Attendance API', () => {
         .get(`/api/troops/${troopId}/attendees`);
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThan(0);
-      expect(response.body[0]).toHaveProperty('username');
-      expect(response.body[0]).toHaveProperty('club_name');
+      expect(response.body).toHaveProperty('attendees');
+      expect(response.body).toHaveProperty('counts');
+      expect(Array.isArray(response.body.attendees)).toBe(true);
+      expect(response.body.attendees.length).toBeGreaterThan(0);
+      expect(response.body.attendees[0]).toHaveProperty('username');
+      expect(response.body.attendees[0]).toHaveProperty('club_name');
     });
 
     it('should return 404 for non-existent troop', async () => {
@@ -202,7 +204,7 @@ describe('Attendance API', () => {
         .get(`/api/troops/${multiClubTroopId}/attendees`);
 
       expect(attendeesResponse.status).toBe(200);
-      expect(attendeesResponse.body.length).toBe(1);
+      expect(attendeesResponse.body.attendees.length).toBe(1);
     });
   });
 });

@@ -90,6 +90,10 @@ export interface Troop {
   description?: string | null;
   signup_link?: string | null;
   policies_link?: string | null;
+  max_troopers?: number | null;
+  max_squires?: number | null;
+  admin_approval_required: boolean;
+  waitlist_enabled: boolean;
   created_by?: number | null;
   created_by_club_id?: number | null;
   created_at: Date;
@@ -116,6 +120,10 @@ export interface TroopCreateInput {
   description?: string;
   signup_link?: string;
   policies_link?: string;
+  max_troopers?: number;
+  max_squires?: number;
+  admin_approval_required?: boolean;
+  waitlist_enabled?: boolean;
   club_ids?: number[]; // Clubs that can see this troop
 }
 
@@ -129,6 +137,9 @@ export interface TroopWithDetails extends Troop {
   clubs?: Club[];
 }
 
+export type AttendeeType = 'trooper' | 'squire';
+export type SignupStatus = 'confirmed' | 'waitlisted' | 'pending_approval' | 'rejected';
+
 export interface TroopAttendee {
   id: number;
   troop_id: number;
@@ -136,7 +147,39 @@ export interface TroopAttendee {
   club_id: number;
   status: string;
   notes?: string | null;
+  costume_id?: number | null;
+  costume_name?: string | null;
+  backup_costume_id?: number | null;
+  backup_costume_name?: string | null;
+  attendance_status?: 'confirmed' | 'tentative' | null;
+  shift_id?: number | null;
+  attendee_type: AttendeeType;
+  signup_status: SignupStatus;
+  waitlist_position?: number | null;
+  approved_by?: number | null;
+  approved_at?: Date | null;
   signed_up_at: Date;
+}
+
+export interface TroopShift {
+  id: number;
+  troop_id: number;
+  name: string;
+  start_time?: string | null;
+  end_time?: string | null;
+  max_attendees?: number | null;
+  max_troopers?: number | null;
+  max_squires?: number | null;
+  created_at: Date;
+}
+
+export interface TroopShiftInput {
+  name: string;
+  start_time?: string;
+  end_time?: string;
+  max_attendees?: number;
+  max_troopers?: number;
+  max_squires?: number;
 }
 
 export interface TroopClub {
@@ -153,4 +196,29 @@ export interface ClubMember {
   user_id: number;
   role: 'super_admin' | 'admin' | 'member' | 'cadet';
   joined_at: Date;
+}
+
+// 501st Legion API Types
+export interface Legion501Costume {
+  costumeId: number;
+  prefix: string;
+  costumeName: string;
+  photoURL: string;
+  thumbnail: string;
+  bucketOffPhoto: string;
+}
+
+export interface Legion501CostumesResponse {
+  costumes: Legion501Costume[];
+}
+
+export interface Legion501Member {
+  legionId: number;
+  fullName: string;
+  thumbnail: string;
+  link: string;
+  memberApproved: string;
+  memberStatus: string;
+  memberStanding: string;
+  joinDate: string;
 }
