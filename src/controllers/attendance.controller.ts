@@ -55,10 +55,19 @@ export class AttendanceController {
         return;
       }
 
-      // Check if already attending under this club
-      const alreadyAttending = await AttendanceModel.isAttending(troopId, req.user.userId, clubId);
-      if (alreadyAttending) {
-        res.status(409).json({ error: 'You are already signed up for this troop under this club' });
+      // Parse shift_id if provided (need this early for duplicate check)
+      const shiftId = req.body.shift_id ? parseInt(req.body.shift_id, 10) : undefined;
+      const validShiftId = isNaN(shiftId as number) ? undefined : shiftId;
+
+      // Check if already attending this shift (or troop if no shift) with this SPECIFIC club
+      // Users can signup for multiple shifts, and can signup for the same shift with different clubs
+      // But they can only signup once per shift per club
+      const isAlreadyAttending = await AttendanceModel.isAttending(troopId, req.user.userId, clubId, validShiftId);
+      if (isAlreadyAttending) {
+        const shiftInfo = validShiftId ? ' for this shift' : '';
+        res.status(409).json({
+          error: `You are already signed up${shiftInfo} with this club. You can only attend once per shift per club.`,
+        });
         return;
       }
 
@@ -70,9 +79,6 @@ export class AttendanceController {
 
       // Parse attendance status (default to 'confirmed')
       const attendanceStatus = req.body.attendance_status === 'tentative' ? 'tentative' : 'confirmed';
-
-      // Parse shift_id if provided
-      const shiftId = req.body.shift_id ? parseInt(req.body.shift_id, 10) : undefined;
 
       // Parse attendee_type (default to 'trooper')
       const attendeeType: AttendeeType = req.body.attendee_type === 'squire' ? 'squire' : 'trooper';
@@ -87,7 +93,7 @@ export class AttendanceController {
         backup_costume_id: isNaN(backupCostumeId as number) ? undefined : backupCostumeId,
         backup_costume_name: backupCostumeName,
         attendance_status: attendanceStatus,
-        shift_id: isNaN(shiftId as number) ? undefined : shiftId,
+        shift_id: validShiftId,
         attendee_type: attendeeType,
       });
 

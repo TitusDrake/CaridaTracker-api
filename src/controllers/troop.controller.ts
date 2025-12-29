@@ -106,6 +106,10 @@ export class TroopController {
         description: req.body.description,
         signup_link: req.body.signup_link,
         policies_link: req.body.policies_link,
+        max_troopers: req.body.max_troopers,
+        max_squires: req.body.max_squires,
+        admin_approval_required: req.body.admin_approval_required,
+        waitlist_enabled: req.body.waitlist_enabled,
         club_ids: req.body.club_ids,
       };
 
@@ -175,6 +179,10 @@ export class TroopController {
         description: req.body.description,
         signup_link: req.body.signup_link,
         policies_link: req.body.policies_link,
+        max_troopers: req.body.max_troopers,
+        max_squires: req.body.max_squires,
+        admin_approval_required: req.body.admin_approval_required,
+        waitlist_enabled: req.body.waitlist_enabled,
         club_ids: req.body.club_ids,
       };
 

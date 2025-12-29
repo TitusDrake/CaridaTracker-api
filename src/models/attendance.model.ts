@@ -346,16 +346,81 @@ export class AttendanceModel {
 
   /**
    * Check if user is already attending a troop under a specific club
+   * If shiftId is provided, checks for that specific shift
+   * If shiftId is null/undefined, checks for troop-level attendance (no shift)
    */
-  static async isAttending(troopId: number, userId: number, clubId: number): Promise<boolean> {
-    const result = await query(
-      `SELECT 1 FROM troop_attendees
-       WHERE troop_id = $1 AND user_id = $2 AND club_id = $3
-       LIMIT 1`,
-      [troopId, userId, clubId],
-    );
+  static async isAttending(
+    troopId: number,
+    userId: number,
+    clubId: number,
+    shiftId?: number | null,
+  ): Promise<boolean> {
+    let sql: string;
+    let params: (number | null)[];
 
+    if (shiftId) {
+      // Check for attendance at this specific shift with this club
+      sql = `SELECT 1 FROM troop_attendees
+             WHERE troop_id = $1 AND user_id = $2 AND club_id = $3 AND shift_id = $4
+             LIMIT 1`;
+      params = [troopId, userId, clubId, shiftId];
+    } else {
+      // Check for troop-level attendance with this club (no shift assigned)
+      sql = `SELECT 1 FROM troop_attendees
+             WHERE troop_id = $1 AND user_id = $2 AND club_id = $3 AND shift_id IS NULL
+             LIMIT 1`;
+      params = [troopId, userId, clubId];
+    }
+
+    const result = await query(sql, params);
     return result.rows.length > 0;
+  }
+
+  /**
+   * Check if user is already attending a troop/shift with ANY club
+   * If shiftId is provided, checks for that specific shift
+   * If shiftId is null/undefined, checks for troop-level attendance (no shift)
+   * Returns the existing attendance record if found
+   */
+  static async isAttendingAnyClub(
+    troopId: number,
+    userId: number,
+    shiftId?: number | null,
+  ): Promise<{ attending: boolean; clubName?: string; attendeeType?: AttendeeType; shiftName?: string }> {
+    let sql: string;
+    let params: (number | null)[];
+
+    if (shiftId) {
+      // Check for attendance at this specific shift
+      sql = `SELECT ta.attendee_type, c.name as club_name, ts.name as shift_name
+             FROM troop_attendees ta
+             JOIN clubs c ON c.id = ta.club_id
+             LEFT JOIN troop_shifts ts ON ts.id = ta.shift_id
+             WHERE ta.troop_id = $1 AND ta.user_id = $2 AND ta.shift_id = $3
+             LIMIT 1`;
+      params = [troopId, userId, shiftId];
+    } else {
+      // Check for troop-level attendance (no shift assigned)
+      sql = `SELECT ta.attendee_type, c.name as club_name
+             FROM troop_attendees ta
+             JOIN clubs c ON c.id = ta.club_id
+             WHERE ta.troop_id = $1 AND ta.user_id = $2 AND ta.shift_id IS NULL
+             LIMIT 1`;
+      params = [troopId, userId];
+    }
+
+    const result = await query(sql, params);
+
+    if (result.rows.length > 0) {
+      return {
+        attending: true,
+        clubName: result.rows[0].club_name,
+        attendeeType: result.rows[0].attendee_type,
+        shiftName: result.rows[0].shift_name,
+      };
+    }
+
+    return { attending: false };
   }
 
   /**

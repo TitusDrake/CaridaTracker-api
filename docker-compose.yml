@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  mailpit:
+    image: axllent/mailpit
+    container_name: caridatracker-mailpit
+    ports:
+      - "8025:8025"  # Web UI
+      - "1025:1025"  # SMTP
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=true
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true
+    restart: unless-stopped

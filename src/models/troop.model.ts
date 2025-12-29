@@ -145,8 +145,9 @@ export class TroopModel {
         start_time, arrival_time, end_time, prop_weapons_allowed,
         share_with_sister_groups, requested_characters_count, secure_changing_area,
         changing_area_description, amenities, description, signup_link, policies_link,
+        max_troopers, max_squires, admin_approval_required, waitlist_enabled,
         created_by, created_by_club_id
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
       RETURNING *`,
       [
         data.event_name,
@@ -168,6 +169,10 @@ export class TroopModel {
         data.description || null,
         data.signup_link || null,
         data.policies_link || null,
+        data.max_troopers ?? null,
+        data.max_squires ?? null,
+        data.admin_approval_required ?? false,
+        data.waitlist_enabled ?? true,
         createdBy,
         createdByClubId,
       ],
@@ -223,6 +228,10 @@ export class TroopModel {
       description: 'description',
       signup_link: 'signup_link',
       policies_link: 'policies_link',
+      max_troopers: 'max_troopers',
+      max_squires: 'max_squires',
+      admin_approval_required: 'admin_approval_required',
+      waitlist_enabled: 'waitlist_enabled',
     };
 
     for (const [key, dbField] of Object.entries(fieldMap)) {
