@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { AuthController } from '../controllers/auth.controller';
+import { PasswordResetController } from '../controllers/passwordReset.controller';
+import { EmailVerificationController } from '../controllers/emailVerification.controller';
 import { authenticate } from '../middleware/auth.middleware';
 import { body } from 'express-validator';
 
@@ -60,8 +62,34 @@ const loginValidation = [
     .withMessage('Password is required'),
 ];
 
+const forgotPasswordValidation = [
+  body('email')
+    .isEmail()
+    .normalizeEmail()
+    .withMessage('Valid email is required'),
+];
+
+const resetPasswordValidation = [
+  body('token')
+    .notEmpty()
+    .withMessage('Reset token is required'),
+  body('password')
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 characters long'),
+];
+
 router.post('/register', registerValidation, AuthController.register);
 router.post('/login', loginValidation, AuthController.login);
 router.get('/me', authenticate, AuthController.me);
+
+// Password reset routes
+router.post('/forgot-password', forgotPasswordValidation, PasswordResetController.forgotPassword);
+router.post('/reset-password', resetPasswordValidation, PasswordResetController.resetPassword);
+router.get('/verify-reset-token/:token', PasswordResetController.verifyResetToken);
+
+// Email verification routes
+router.post('/send-verification', authenticate, EmailVerificationController.sendVerification);
+router.post('/verify-email', EmailVerificationController.verifyEmail);
+router.get('/verification-status', authenticate, EmailVerificationController.getVerificationStatus);
 
 export default router;
